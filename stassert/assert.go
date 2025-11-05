@@ -1,4 +1,4 @@
-package tsassert
+package stassert
 
 import (
 	"testing"

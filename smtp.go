@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"log"
 	"net"
 	"os"
 
@@ -36,7 +35,7 @@ func (s *SmtpServer) handler(remoteAddr net.Addr, from string, to []string, data
 }
 
 func (s *SmtpServer) GetLastEnvelope() *TestEnvelope {
-	return NewTestEnvelope(s.lastEnvelope)
+	return NewTestEnvelope(s.lastEnvelope.Clone())
 }
 
 func (s *SmtpServer) ListenAndServe(ctx context.Context) (err error) {
@@ -59,18 +58,6 @@ func (s *SmtpServer) ListenAndServe(ctx context.Context) (err error) {
 		smtpd.WithAppName(appName),
 		smtpd.WithHostname(hostName),
 		smtpd.AllowAuthMechanisms("LOGIN", true),
-		smtpd.WithAuthHandler(
-			func(
-				remoteAddr net.Addr,
-				mechanism string,
-				username []byte,
-				password []byte,
-				shared []byte,
-			) (bool, error) {
-				// Require auth, but don't actually validate it.
-				return true, nil
-			},
-			true),
 	}
 
 	srv, err := smtpd.NewServer(s.handler, opts...)
@@ -78,9 +65,7 @@ func (s *SmtpServer) ListenAndServe(ctx context.Context) (err error) {
 		return err
 	}
 	go func() {
-		if err := srv.ServeContext(ctx, s.listener); err != nil {
-			log.Fatal(err)
-		}
+		srv.ServeContext(ctx, s.listener)
 	}()
 	return nil
 }

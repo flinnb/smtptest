@@ -1,6 +1,8 @@
 package smtptest
 
-import "github.com/jhillyerd/enmime"
+import (
+	"github.com/jhillyerd/enmime"
+)
 
 type TestEnvelope struct {
 	toAddrs  map[string]bool
@@ -11,24 +13,25 @@ type TestEnvelope struct {
 }
 
 func NewTestEnvelope(e *enmime.Envelope) (te *TestEnvelope) {
-	te = &TestEnvelope{
-		toAddrs: map[string]bool{},
-		ccAddrs: map[string]bool{},
-		toNames: map[string]bool{},
-		ccNames: map[string]bool{},
+	if e != nil {
+		te = &TestEnvelope{
+			toAddrs: map[string]bool{},
+			ccAddrs: map[string]bool{},
+			toNames: map[string]bool{},
+			ccNames: map[string]bool{},
+		}
+		to, _ := e.AddressList("to")
+		for _, email := range to {
+			te.toAddrs[email.Address] = true
+			te.toNames[email.Name] = true
+		}
+		cc, _ := e.AddressList("cc")
+		for _, email := range cc {
+			te.ccAddrs[email.Address] = true
+			te.ccNames[email.Name] = true
+		}
+		te.envelope = e
 	}
-	to, _ := e.AddressList("to")
-	for _, email := range to {
-		te.toAddrs[email.Address] = true
-		te.toNames[email.Name] = true
-	}
-	cc, _ := e.AddressList("cc")
-	for _, email := range cc {
-		te.ccAddrs[email.Address] = true
-		te.ccNames[email.Name] = true
-	}
-	te.envelope = e
-
 	return
 }
 

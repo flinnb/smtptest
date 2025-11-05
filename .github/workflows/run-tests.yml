@@ -8,9 +8,7 @@ on:
 
 jobs:
 
-  build:
-    env:
-      VERSION: v1.0.0
+  run-tests:
     name: Build
     runs-on: ubuntu-latest
     strategy:
@@ -19,24 +17,25 @@ jobs:
           - "1.24"
           - "1.25"
     steps:
-
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
         go-version: ${{ matrix.go_version }}
       id: go
 
-    - name: Install tools
-      run: go install gotest.tools/gotestsum@latest
-
     - name: Check out code into the Go module directory
       uses: actions/checkout@v5
 
     - name: Test
       run: |
-        gotestsum ./...
+        go test ./...
 
+  create-tag:
+    steps:
     - name: Tag Build
+      env:
+        VERSION: v1.0.0
+      needs: run-tests
       run: |
         export VERSION_TAG=$VERSION-$(date +%s%3N)
         git tag $VERSION_TAG

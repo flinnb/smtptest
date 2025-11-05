@@ -1,7 +1,6 @@
 package smtptest_test
 
 import (
-	"os"
 	"testing"
 
 	"github.com/jhillyerd/enmime"
@@ -10,10 +9,6 @@ import (
 
 	"github.com/flinnb/smtptest"
 )
-
-func TestMain(m *testing.M) {
-	os.Exit(m.Run())
-}
 
 func TestHasRecipient(t *testing.T) {
 	msg := enmime.Builder().

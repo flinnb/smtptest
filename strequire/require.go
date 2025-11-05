@@ -1,4 +1,4 @@
-package tsrequire
+package strequire
 
 import (
 	"testing"
