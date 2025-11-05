@@ -31,11 +31,11 @@ jobs:
         go test ./...
 
   create-tag:
+    needs: run-tests
     steps:
     - name: Tag Build
       env:
         VERSION: v1.0.0
-      needs: run-tests
       run: |
         export VERSION_TAG=$VERSION-$(date +%s%3N)
         git tag $VERSION_TAG
