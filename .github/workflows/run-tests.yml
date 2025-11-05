@@ -37,8 +37,6 @@ jobs:
         gotestsum ./...
 
     - name: Tag Build
-      env:
-          GITHUB_TOKEN: ${{ github.token }}
       run: |
         export VERSION_TAG=$VERSION-$(date +%s%3N)
         git tag $VERSION_TAG
