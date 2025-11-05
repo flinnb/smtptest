@@ -9,7 +9,7 @@ on:
 jobs:
 
   run-tests:
-    name: Build
+    name: Run Tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -31,9 +31,14 @@ jobs:
         go test ./...
 
   create-tag:
+    name: Create Tag
+    runs-on: ubuntu-latest
     needs: run-tests
     steps:
-    - name: Tag Build
+    - name: Check out code
+      uses: actions/checkout@v5
+
+    - name: Tag repo with version
       env:
         VERSION: v1.0.0
       run: |
