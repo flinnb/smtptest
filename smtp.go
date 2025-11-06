@@ -13,6 +13,7 @@ import (
 
 type SmtpServer struct {
 	Address      *string
+	Messages     chan *TestEnvelope
 	lastEnvelope *enmime.Envelope
 	listener     net.Listener
 }
@@ -30,8 +31,10 @@ func getFreePort() (port int, err error) {
 }
 
 func (s *SmtpServer) handler(remoteAddr net.Addr, from string, to []string, data []byte) {
+	fmt.Println("Hello from the handler")
 	e, _ := enmime.ReadEnvelope(bytes.NewReader(data))
 	s.lastEnvelope = e
+	s.Messages <- NewTestEnvelope(e)
 }
 
 func (s *SmtpServer) GetLastEnvelope() *TestEnvelope {
@@ -40,6 +43,7 @@ func (s *SmtpServer) GetLastEnvelope() *TestEnvelope {
 
 func (s *SmtpServer) ListenAndServe(ctx context.Context) (err error) {
 
+	s.Messages = make(chan *TestEnvelope)
 	hn, _ := os.Hostname()
 	port, _ := getFreePort()
 	address := fmt.Sprintf(":%d", port)
@@ -58,6 +62,7 @@ func (s *SmtpServer) ListenAndServe(ctx context.Context) (err error) {
 		smtpd.WithAppName(appName),
 		smtpd.WithHostname(hostName),
 		smtpd.AllowAuthMechanisms("LOGIN", true),
+		smtpd.WithMaxSize(4194304),
 	}
 
 	srv, err := smtpd.NewServer(s.handler, opts...)
@@ -71,5 +76,6 @@ func (s *SmtpServer) ListenAndServe(ctx context.Context) (err error) {
 }
 
 func (s *SmtpServer) Close() {
+	close(s.Messages)
 	s.listener.Close()
 }

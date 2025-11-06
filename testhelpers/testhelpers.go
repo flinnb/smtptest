@@ -1,6 +1,9 @@
 package testhelpers
 
-import "embed"
+import (
+	"embed"
+	"fmt"
+)
 
 //go:embed attachments/*
 var attachments embed.FS
@@ -11,7 +14,7 @@ var attachmentTypes = map[string]string{
 }
 
 func GetAttachment(filename string) ([]byte, string) {
-	b, _ := attachments.ReadFile(filename)
+	b, _ := attachments.ReadFile(fmt.Sprintf("attachments/%s", filename))
 	t := attachmentTypes[filename]
 	return b, t
 }
