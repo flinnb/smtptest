@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"log"
 	"net"
 	"os"
 
@@ -14,6 +13,7 @@ import (
 
 type SmtpServer struct {
 	Address      *string
+	Messages     chan *TestEnvelope
 	lastEnvelope *enmime.Envelope
 	listener     net.Listener
 }
@@ -33,14 +33,12 @@ func getFreePort() (port int, err error) {
 func (s *SmtpServer) handler(remoteAddr net.Addr, from string, to []string, data []byte) {
 	e, _ := enmime.ReadEnvelope(bytes.NewReader(data))
 	s.lastEnvelope = e
-}
-
-func (s *SmtpServer) GetLastEnvelope() *TestEnvelope {
-	return NewTestEnvelope(s.lastEnvelope)
+	s.Messages <- NewTestEnvelope(e, to)
 }
 
 func (s *SmtpServer) ListenAndServe(ctx context.Context) (err error) {
 
+	s.Messages = make(chan *TestEnvelope)
 	hn, _ := os.Hostname()
 	port, _ := getFreePort()
 	address := fmt.Sprintf(":%d", port)
@@ -59,18 +57,7 @@ func (s *SmtpServer) ListenAndServe(ctx context.Context) (err error) {
 		smtpd.WithAppName(appName),
 		smtpd.WithHostname(hostName),
 		smtpd.AllowAuthMechanisms("LOGIN", true),
-		smtpd.WithAuthHandler(
-			func(
-				remoteAddr net.Addr,
-				mechanism string,
-				username []byte,
-				password []byte,
-				shared []byte,
-			) (bool, error) {
-				// Require auth, but don't actually validate it.
-				return true, nil
-			},
-			true),
+		smtpd.WithMaxSize(4194304),
 	}
 
 	srv, err := smtpd.NewServer(s.handler, opts...)
@@ -78,13 +65,12 @@ func (s *SmtpServer) ListenAndServe(ctx context.Context) (err error) {
 		return err
 	}
 	go func() {
-		if err := srv.ServeContext(ctx, s.listener); err != nil {
-			log.Fatal(err)
-		}
+		srv.ServeContext(ctx, s.listener)
 	}()
 	return nil
 }
 
 func (s *SmtpServer) Close() {
+	close(s.Messages)
 	s.listener.Close()
 }

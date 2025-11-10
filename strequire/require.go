@@ -1,4 +1,4 @@
-package tsrequire
+package strequire
 
 import (
 	"testing"
@@ -14,6 +14,10 @@ func HasToAddr(t *testing.T, te *smtptest.TestEnvelope, to string) {
 
 func HasCcAddr(t *testing.T, te *smtptest.TestEnvelope, cc string) {
 	require.True(t, te.HasCcAddr(cc))
+}
+
+func HasBccAddr(t *testing.T, te *smtptest.TestEnvelope, bcc string) {
+	require.True(t, te.HasBccAddr(bcc))
 }
 
 func HasToName(t *testing.T, te *smtptest.TestEnvelope, to string) {

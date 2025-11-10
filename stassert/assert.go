@@ -1,4 +1,4 @@
-package tsassert
+package stassert
 
 import (
 	"testing"
@@ -9,11 +9,15 @@ import (
 )
 
 func HasToAddr(t *testing.T, te *smtptest.TestEnvelope, to string) bool {
-	return assert.True(t, te.HasToAddr(to))
+	return assert.True(t, te.HasToAddr(to), "`To` address list should contain `%s`", to)
 }
 
 func HasCcAddr(t *testing.T, te *smtptest.TestEnvelope, cc string) bool {
 	return assert.True(t, te.HasCcAddr(cc))
+}
+
+func HasBccAddr(t *testing.T, te *smtptest.TestEnvelope, bcc string) bool {
+	return assert.True(t, te.HasBccAddr(bcc))
 }
 
 func HasToName(t *testing.T, te *smtptest.TestEnvelope, to string) bool {

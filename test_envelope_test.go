@@ -1,7 +1,6 @@
 package smtptest_test
 
 import (
-	"os"
 	"testing"
 
 	"github.com/jhillyerd/enmime"
@@ -10,10 +9,6 @@ import (
 
 	"github.com/flinnb/smtptest"
 )
-
-func TestMain(m *testing.M) {
-	os.Exit(m.Run())
-}
 
 func TestHasRecipient(t *testing.T) {
 	msg := enmime.Builder().
@@ -28,7 +23,7 @@ func TestHasRecipient(t *testing.T) {
 	e, err := enmime.EnvelopeFromPart(p)
 	require.NoError(t, err)
 
-	te := smtptest.NewTestEnvelope(e)
+	te := smtptest.NewTestEnvelope(e, []string{})
 
 	t.Run("Envelope has correct `to` email addresses", func(t *testing.T) {
 		assert.True(t, te.HasToAddr("r1@localhost.dev"))
@@ -53,7 +48,7 @@ func TestHasCopiedRecipient(t *testing.T) {
 	e, err := enmime.EnvelopeFromPart(p)
 	require.NoError(t, err)
 
-	te := smtptest.NewTestEnvelope(e)
+	te := smtptest.NewTestEnvelope(e, []string{})
 
 	t.Run("Envelope has correct `cc` email addresses", func(t *testing.T) {
 		assert.True(t, te.HasCcAddr("r1@localhost.dev"))
