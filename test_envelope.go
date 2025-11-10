@@ -7,18 +7,20 @@ import (
 type TestEnvelope struct {
 	toAddrs  map[string]bool
 	ccAddrs  map[string]bool
+	bccAddrs map[string]bool
 	toNames  map[string]bool
 	ccNames  map[string]bool
 	envelope *enmime.Envelope
 }
 
-func NewTestEnvelope(e *enmime.Envelope) (te *TestEnvelope) {
+func NewTestEnvelope(e *enmime.Envelope, recipients []string) (te *TestEnvelope) {
 	if e != nil {
 		te = &TestEnvelope{
-			toAddrs: map[string]bool{},
-			ccAddrs: map[string]bool{},
-			toNames: map[string]bool{},
-			ccNames: map[string]bool{},
+			toAddrs:  map[string]bool{},
+			ccAddrs:  map[string]bool{},
+			bccAddrs: map[string]bool{},
+			toNames:  map[string]bool{},
+			ccNames:  map[string]bool{},
 		}
 		to, _ := e.AddressList("to")
 		for _, email := range to {
@@ -29,6 +31,12 @@ func NewTestEnvelope(e *enmime.Envelope) (te *TestEnvelope) {
 		for _, email := range cc {
 			te.ccAddrs[email.Address] = true
 			te.ccNames[email.Name] = true
+		}
+		if len(recipients) > len(to)+len(cc) {
+
+			for _, email := range recipients[len(to)+len(cc):] {
+				te.bccAddrs[email] = true
+			}
 		}
 		te.envelope = e
 	}
@@ -42,6 +50,11 @@ func (te *TestEnvelope) HasToAddr(to string) bool {
 
 func (te *TestEnvelope) HasCcAddr(cc string) bool {
 	_, ok := te.ccAddrs[cc]
+	return ok
+}
+
+func (te *TestEnvelope) HasBccAddr(bcc string) bool {
+	_, ok := te.bccAddrs[bcc]
 	return ok
 }
 

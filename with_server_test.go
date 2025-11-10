@@ -22,8 +22,10 @@ func TestWithServerBasic(t *testing.T) {
 		ReplyTo("Sender Name", "reply-to@localhost.dev").
 		To("Recipient One", "r1@localhost.dev").
 		To("Recipient Two", "r2@localhost.dev").
-		CC("Copy Recipient One", "r1@localhost.dev").
-		CC("Copy Recipient Two", "r2@localhost.dev").
+		CC("Copy Recipient One", "cc-r1@localhost.dev").
+		CC("Copy Recipient Two", "cc-r2@localhost.dev").
+		BCC("Blind Copy Recipient One", "bcc-r1@localhost.dev").
+		BCC("Blind Copy Recipient Two", "bcc-r2@localhost.dev").
 		AddAttachment(b1, t1, "puppy-asleep.jpg").
 		AddAttachment(b2, t2, "theodolite.jpg").
 		AddAttachment(b3, t3, "test.txt")
@@ -44,11 +46,14 @@ func TestWithServerBasic(t *testing.T) {
 		stassert.HasToName(t, te, "Recipient One")
 		stassert.HasToName(t, te, "Recipient Two")
 
-		stassert.HasCcAddr(t, te, "r1@localhost.dev")
-		stassert.HasCcAddr(t, te, "r2@localhost.dev")
+		stassert.HasCcAddr(t, te, "cc-r1@localhost.dev")
+		stassert.HasCcAddr(t, te, "cc-r2@localhost.dev")
 
 		stassert.HasCcName(t, te, "Copy Recipient One")
 		stassert.HasCcName(t, te, "Copy Recipient Two")
+
+		stassert.HasBccAddr(t, te, "bcc-r1@localhost.dev")
+		stassert.HasBccAddr(t, te, "bcc-r2@localhost.dev")
 
 	})
 }

@@ -31,14 +31,9 @@ func getFreePort() (port int, err error) {
 }
 
 func (s *SmtpServer) handler(remoteAddr net.Addr, from string, to []string, data []byte) {
-	fmt.Println("Hello from the handler")
 	e, _ := enmime.ReadEnvelope(bytes.NewReader(data))
 	s.lastEnvelope = e
-	s.Messages <- NewTestEnvelope(e)
-}
-
-func (s *SmtpServer) GetLastEnvelope() *TestEnvelope {
-	return NewTestEnvelope(s.lastEnvelope.Clone())
+	s.Messages <- NewTestEnvelope(e, to)
 }
 
 func (s *SmtpServer) ListenAndServe(ctx context.Context) (err error) {

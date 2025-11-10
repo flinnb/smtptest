@@ -23,7 +23,7 @@ func TestHasRecipient(t *testing.T) {
 	e, err := enmime.EnvelopeFromPart(p)
 	require.NoError(t, err)
 
-	te := smtptest.NewTestEnvelope(e)
+	te := smtptest.NewTestEnvelope(e, []string{})
 
 	t.Run("Envelope has correct `to` email addresses", func(t *testing.T) {
 		assert.True(t, te.HasToAddr("r1@localhost.dev"))
@@ -48,7 +48,7 @@ func TestHasCopiedRecipient(t *testing.T) {
 	e, err := enmime.EnvelopeFromPart(p)
 	require.NoError(t, err)
 
-	te := smtptest.NewTestEnvelope(e)
+	te := smtptest.NewTestEnvelope(e, []string{})
 
 	t.Run("Envelope has correct `cc` email addresses", func(t *testing.T) {
 		assert.True(t, te.HasCcAddr("r1@localhost.dev"))
